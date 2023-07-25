@@ -1,0 +1,32 @@
+node{
+  def mavenHome = tool name: 'maven3.9.2'
+  stage('1.GetCode'){
+     sh "git clone https://github.com/LandmakTechnology/maven-web-application"
+  }
+  stage('2.Build'){
+    sh "${mavenHome}/bin/mvn package"
+  }
+  stage('3.CodeQualityAnalysis'){
+    sh "${mavenHome}/bin/mvn sonar:sonar"
+  }
+  stage('4.Upload'){
+    sh "${mavenHome}/bin/mvn deploy"
+  }
+  stage('5.Deploy2UAT'){
+    deploy adapters: [tomcat9(credentialsId: 'tomcatcredential', path: '', url: 'http://172.31.9.204:8177/')], contextPath: null, war: 'target/*war '
+  
+  }
+  stage('6.Approval'){
+    sh "echo 'apps ready for review' "
+    timeout(time:5, unit:'HOURS') {
+    input message: 'Application ready for deployment, Please review and approve'
+      }
+
+  }
+  stage('7.Production'){
+      deploy adapters: [tomcat9(credentialsId: 'tomcatcredential', path: '', url: 'http://172.31.9.204:8177/')], contextPath: null, war: 'target/*war '
+  }
+  stage('8.Notification'){
+
+  }
+}
