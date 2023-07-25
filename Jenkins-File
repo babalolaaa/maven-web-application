@@ -4,7 +4,7 @@ node{
      sh "git clone https://github.com/LandmakTechnology/maven-web-application"
   }
   stage('2.Build'){
-    sh "${mavenHome}/bin/mvn package"
+    sh "${mavenHome}/bin/mvn package" -X
   }
   stage('3.CodeQualityAnalysis'){
     sh "${mavenHome}/bin/mvn sonar:sonar"
